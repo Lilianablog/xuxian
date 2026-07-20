@@ -87,50 +87,59 @@ a:focus-visible {
 .topbar-actions {
   align-items: center;
   display: flex;
-  gap: 18px;
+  gap: 8px;
 }
 
-.save-status {
-  align-items: center;
-  color: var(--muted);
-  display: flex;
-  font-size: 12px;
-  gap: 7px;
-}
-
-.save-status i {
-  background: #6f9a82;
-  border-radius: 50%;
-  height: 6px;
-  width: 6px;
-}
-
-.text-button {
-  background: transparent;
-  border: 0;
-  color: var(--green);
-  font-size: 13px;
-  font-weight: 650;
-  padding: 7px 0;
-}
-
+.text-button,
 .task-manager-button {
   align-items: center;
-  background: white;
-  border: 1px solid var(--line);
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 8px;
+  color: #59645e;
   display: flex;
-  font-size: 12px;
-  gap: 7px;
-  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 650;
+  height: 32px;
+  padding: 6px 9px;
 }
 
-.task-manager-button span {
+.text-button:hover,
+.task-manager-button:hover {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.topbar-actions .task-manager-button {
+  background: white;
+  border: 1px solid #d8ddd9;
+  border-radius: 10px;
+  box-shadow: 0 1px 1px rgba(35, 45, 39, 0.02);
+  color: var(--text);
+  font-weight: 550;
+  gap: 7px;
+  height: 36px;
+  margin-right: 6px;
+  padding: 6px 8px 6px 12px;
+}
+
+.topbar-actions .task-manager-button:hover {
+  background: #fbfcfb;
+  border-color: #bdc9c1;
+  color: var(--text);
+}
+
+.topbar-actions .task-manager-button span {
+  align-items: center;
   background: var(--green-soft);
   border-radius: 999px;
   color: var(--green);
-  font-size: 10px;
-  padding: 2px 6px;
+  display: inline-flex;
+  font-size: 11px;
+  height: 24px;
+  justify-content: center;
+  min-width: 24px;
+  padding: 0 6px;
 }
 
 .capture-wrap {
@@ -202,8 +211,7 @@ a:focus-visible {
 
 .saved-notes > summary,
 .more-tasks > summary,
-.current-details > summary,
-.optional-fields > summary {
+.current-details > summary {
   color: var(--muted);
   cursor: pointer;
   font-size: 12px;
@@ -213,15 +221,13 @@ a:focus-visible {
 
 .saved-notes > summary::-webkit-details-marker,
 .more-tasks > summary::-webkit-details-marker,
-.current-details > summary::-webkit-details-marker,
-.optional-fields > summary::-webkit-details-marker {
+.current-details > summary::-webkit-details-marker {
   display: none;
 }
 
 .saved-notes > summary::after,
 .more-tasks > summary::after,
-.current-details > summary::after,
-.optional-fields > summary::after {
+.current-details > summary::after {
   content: "＋";
   font-size: 12px;
   margin-left: 7px;
@@ -229,8 +235,7 @@ a:focus-visible {
 
 .saved-notes[open] > summary::after,
 .more-tasks[open] > summary::after,
-.current-details[open] > summary::after,
-.optional-fields[open] > summary::after {
+.current-details[open] > summary::after {
   content: "－";
 }
 
@@ -878,11 +883,65 @@ a:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.modal-card .switch-route-new input {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+  min-width: 0;
+  outline: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.switch-route-new:focus-within {
+  border-color: #aac4b5;
+  box-shadow: 0 0 0 3px rgba(49, 93, 73, 0.06);
+}
+
+.modal-card .switch-route-new input:focus {
+  border: 0;
+  box-shadow: none;
+}
+
+.modal-card .switch-route-new input::placeholder {
+  color: #6f7f76;
+  font-weight: 650;
+}
+
 .switch-route-arrow {
   align-self: center;
   color: var(--green);
   font-size: 20px;
   text-align: center;
+}
+
+.new-task-name {
+  display: grid;
+  gap: 7px;
+  margin: 18px 0 20px;
+}
+
+.new-task-name > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.new-task-name > input {
+  background: #fafaf8;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 14px;
+  outline: 0;
+  padding: 11px 12px;
+}
+
+.new-task-name > input:focus {
+  border-color: #9fb3a8;
+  box-shadow: 0 0 0 3px rgba(49, 93, 73, 0.06);
 }
 
 .switch-away-card {
@@ -1346,25 +1405,6 @@ a:focus-visible {
   list-style-type: decimal;
 }
 
-.save-current {
-  background: #fafaf8;
-  border: 1px solid var(--line-soft);
-  border-radius: 11px;
-  padding: 16px;
-}
-
-.optional-fields {
-  border-top: 1px solid var(--line-soft);
-  margin-top: 5px;
-  padding-top: 5px;
-}
-
-.optional-fields > label,
-.optional-fields > .form-field,
-.optional-fields > fieldset {
-  margin-top: 12px;
-}
-
 .choice-row {
   display: flex;
   flex-wrap: wrap;
@@ -1395,45 +1435,6 @@ a:focus-visible {
   padding: 0;
   position: absolute;
   width: 1px;
-}
-
-.target-box {
-  border-top: 1px solid var(--line);
-  margin-top: 18px;
-  padding-top: 18px;
-}
-
-.target-existing > span {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.target-existing h3 {
-  font-size: 18px;
-  margin: 7px 0 5px;
-}
-
-.target-existing p,
-.target-existing .rich-note {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.new-thread-fields {
-  display: grid;
-  gap: 2px;
-}
-
-.capacity-note {
-  background: var(--warm);
-  border-radius: 8px;
-  color: #765f3f;
-  font-size: 12px;
-  line-height: 1.5;
-  margin: 13px 0 0;
-  padding: 10px 12px;
 }
 
 .modal-actions {
@@ -1733,19 +1734,11 @@ a:focus-visible {
     height: 58px;
   }
 
-  .save-status {
-    display: none;
-  }
-
   .topbar-actions {
-    gap: 10px;
+    gap: 5px;
   }
 
-  .task-manager-button {
-    padding: 6px 8px;
-  }
-
-  .task-manager-button span {
+  .topbar-actions .task-manager-button span {
     display: none;
   }
 

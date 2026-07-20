@@ -96,6 +96,11 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /function confirmImport/);
   assert.match(page, /导入备份/);
   assert.match(page, /覆盖并导入/);
+  assert.match(page, /备份&amp;恢复/);
+  assert.doesNotMatch(page, /已自动保存/);
+  assert.match(page, /新建并切换/);
+  assert.match(page, /switch-route-new/);
+  assert.doesNotMatch(page, /给当前任务留信息（可选）/);
   assert.match(page, /accept="\.json,application\/json"/);
   assert.match(page, /放到稍后/);
   assert.match(page, /editDrafts/);

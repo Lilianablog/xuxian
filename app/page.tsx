@@ -476,7 +476,6 @@ export default function Home() {
   const [currentNoteDraft, setCurrentNoteDraft] = useState("");
   const [returnChoice, setReturnChoice] = useState("none");
   const [newTitle, setNewTitle] = useState("");
-  const [newNote, setNewNote] = useState("");
   const [toast, setToast] = useState("");
   const [lastDeleted, setLastDeleted] = useState<DeletedTask | null>(null);
   const [reminderTaskId, setReminderTaskId] = useState<string | null>(null);
@@ -793,7 +792,7 @@ export default function Home() {
         tasks.unshift({
           id: uid("task"),
           title: newTitle.trim(),
-          note: sanitizeNoteHtml(newNote),
+          note: "",
           status: "active",
           createdAt: currentTime,
           updatedAt: currentTime,
@@ -813,7 +812,6 @@ export default function Home() {
     setReturnChoice("none");
     if (createdNewTask) {
       setNewTitle("");
-      setNewNote("");
     }
     showToast("已保存并切换");
   }
@@ -1115,11 +1113,10 @@ export default function Home() {
       <header className="topbar">
         <a className="brand" href="#top"><span aria-hidden="true" />续线</a>
         <div className="topbar-actions">
-          <span className="save-status"><i aria-hidden="true" />已自动保存</span>
           <button className="task-manager-button" type="button" onClick={() => setShowTaskManager(true)}>
             全部任务 <span>{openTaskCount}</span>
           </button>
-          <button className="text-button" type="button" onClick={() => setShowBackup(true)}>备份</button>
+          <button className="text-button" type="button" onClick={() => setShowBackup(true)}>备份&amp;恢复</button>
           <button className="text-button" type="button" onClick={() => setShowLanding(true)}>结束今天</button>
         </div>
       </header>
@@ -1468,25 +1465,51 @@ export default function Home() {
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setSwitchTarget(null)}>
           <section className="modal-card switch-modal" role="dialog" aria-modal="true" aria-labelledby="switch-title">
             <button className="modal-close" type="button" onClick={() => setSwitchTarget(null)} aria-label="关闭">×</button>
-            <h2 id="switch-title">{switchTarget.mode === "new" ? "开始一件新事" : "切换任务"}</h2>
-            {switchTarget.mode === "new" ? (
-              <p className="modal-lede">任务只需要一个名称，备注可以不填。</p>
-            ) : (
-              <div className="switch-route">
-                <div className="switch-route-task">
-                  <span>当前任务</span>
-                  <strong title={activeTask?.title}>{activeTask?.title}</strong>
-                  <small>将放到稍后</small>
-                </div>
-                <span className="switch-route-arrow" aria-hidden="true">→</span>
-                <div className="switch-route-task is-target">
-                  <span>接下来做</span>
-                  <strong title={switchTask?.title}>{switchTask?.title}</strong>
-                </div>
-              </div>
-            )}
+            <h2 id="switch-title">{switchTarget.mode === "new" ? "新建并切换" : "切换任务"}</h2>
             <form onSubmit={confirmSwitch}>
-              {activeTask && switchTarget.mode === "task" && (
+              {activeTask ? (
+                <div className="switch-route">
+                  <div className="switch-route-task">
+                    <span>当前任务</span>
+                    <strong title={activeTask.title}>{activeTask.title}</strong>
+                    <small>将放到稍后</small>
+                  </div>
+                  <span className="switch-route-arrow" aria-hidden="true">→</span>
+                  {switchTarget.mode === "new" ? (
+                    <div className="switch-route-task is-target switch-route-new">
+                      <span>接下来做</span>
+                      <input
+                        autoFocus
+                        aria-label="新任务名称"
+                        value={newTitle}
+                        onChange={(event) => setNewTitle(event.target.value)}
+                        placeholder="输入新任务名称"
+                        required
+                      />
+                    </div>
+                  ) : (
+                    <div className="switch-route-task is-target">
+                      <span>接下来做</span>
+                      <strong title={switchTask?.title}>{switchTask?.title}</strong>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                switchTarget.mode === "new" && (
+                  <label className="new-task-name">
+                    <span>任务名称</span>
+                    <input
+                      autoFocus
+                      value={newTitle}
+                      onChange={(event) => setNewTitle(event.target.value)}
+                      placeholder="要做什么？"
+                      required
+                    />
+                  </label>
+                )
+              )}
+
+              {activeTask && (
                 <div className="switch-away-card">
                   <div className="switch-away-heading">
                     <span>离开当前任务前</span>
@@ -1535,57 +1558,6 @@ export default function Home() {
                       </div>
                     </fieldset>
                   </details>
-                </div>
-              )}
-
-              {activeTask && switchTarget.mode === "new" && (
-                <details className="save-current optional-fields">
-                  <summary>给当前任务留信息（可选）</summary>
-                  <div className="form-field">
-                    <span>任务备注</span>
-                    <RichTextEditor
-                      value={currentNoteDraft}
-                      onChange={setCurrentNoteDraft}
-                      placeholder="可以留空"
-                      ariaLabel="当前任务备注"
-                    />
-                  </div>
-                  <fieldset>
-                    <legend>什么时候提醒你？</legend>
-                    <div className="choice-row">
-                      {[
-                        ["none", "不提醒"],
-                        ["hour", "1 小时后"],
-                        ["later", "3 小时后"],
-                        ["tomorrow", "明早 10:30"],
-                      ].map(([value, label]) => (
-                        <label className={returnChoice === value ? "selected" : ""} key={value}>
-                          <input type="radio" name="return" value={value} checked={returnChoice === value} onChange={(event) => setReturnChoice(event.target.value)} />
-                          {label}
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                </details>
-              )}
-
-              {switchTarget.mode === "new" && (
-                <div className="target-box">
-                  <div className="new-thread-fields">
-                    <label>
-                      <span>任务名称</span>
-                      <input autoFocus value={newTitle} onChange={(event) => setNewTitle(event.target.value)} placeholder="要做什么？" required />
-                    </label>
-                    <div className="form-field">
-                      <span>备注 <small>可选</small></span>
-                      <RichTextEditor
-                        value={newNote}
-                        onChange={setNewNote}
-                        placeholder="可以以后再补"
-                        ariaLabel="新任务备注"
-                      />
-                    </div>
-                  </div>
                 </div>
               )}
 
