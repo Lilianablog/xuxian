@@ -1008,6 +1008,22 @@ export default function Home() {
     if (toastTimer.current) window.clearTimeout(toastTimer.current);
   }
 
+  function exportBackup() {
+    if (!workspace) return;
+    const blob = new Blob([JSON.stringify(workspace, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `续线备份-${datetimeLocalValue(Date.now()).slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    showToast("备份文件已下载");
+  }
+
   function finishLanding(event: FormEvent) {
     event.preventDefault();
     updateWorkspace((current) => ({ ...current, lastLandingAt: Date.now() }));
@@ -1048,6 +1064,7 @@ export default function Home() {
           <button className="task-manager-button" type="button" onClick={() => setShowTaskManager(true)}>
             全部任务 <span>{openTaskCount}</span>
           </button>
+          <button className="text-button" type="button" onClick={exportBackup}>导出备份</button>
           <button className="text-button" type="button" onClick={() => setShowLanding(true)}>结束今天</button>
         </div>
       </header>
