@@ -990,6 +990,73 @@ a:focus-visible {
   background: var(--green-soft);
 }
 
+.backup-modal {
+  max-width: 500px;
+}
+
+.backup-options {
+  display: grid;
+  gap: 9px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.backup-options button {
+  background: #fafaf8;
+  border: 1px solid var(--line-soft);
+  border-radius: 11px;
+  display: grid;
+  gap: 6px;
+  min-height: 92px;
+  padding: 15px;
+  text-align: left;
+}
+
+.backup-options button:hover {
+  background: var(--green-soft);
+  border-color: #ccdcd2;
+}
+
+.backup-options strong {
+  color: var(--green-dark);
+  font-size: 14px;
+}
+
+.backup-options span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.backup-file-input {
+  display: none;
+}
+
+.backup-error,
+.import-warning {
+  color: #9a4d46;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 12px 0 0;
+}
+
+.import-summary {
+  background: var(--green-soft);
+  border-radius: 11px;
+  display: grid;
+  gap: 5px;
+  padding: 16px;
+}
+
+.import-summary > span,
+.import-summary > small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.import-summary > strong {
+  font-size: 17px;
+}
+
 .reminder-popup {
   max-width: 480px;
 }
@@ -1692,6 +1759,10 @@ a:focus-visible {
 
   .capture-form > button {
     padding-inline: 13px;
+  }
+
+  .backup-options {
+    grid-template-columns: 1fr;
   }
 
   .current-card {

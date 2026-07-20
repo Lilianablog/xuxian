@@ -93,6 +93,10 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /function exportBackup/);
   assert.match(page, /续线备份-/);
   assert.match(page, /导出备份/);
+  assert.match(page, /function confirmImport/);
+  assert.match(page, /导入备份/);
+  assert.match(page, /覆盖并导入/);
+  assert.match(page, /accept="\.json,application\/json"/);
   assert.match(page, /放到稍后/);
   assert.match(page, /editDrafts/);
   assert.match(page, /暂时关闭不会丢失本次修改/);

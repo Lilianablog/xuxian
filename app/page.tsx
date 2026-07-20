@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type {
+  ChangeEvent,
   ClipboardEvent,
   DragEvent,
   FormEvent,
@@ -51,6 +52,11 @@ type DeletedTask = {
   task: Task;
   index: number;
   wasActive: boolean;
+};
+
+type ImportDraft = {
+  workspace: Workspace;
+  fileName: string;
 };
 
 const DB_NAME = "xuxian-local-v1";
@@ -464,6 +470,9 @@ export default function Home() {
   const [showLanding, setShowLanding] = useState(false);
   const [showTaskManager, setShowTaskManager] = useState(false);
   const [showSwitchChooser, setShowSwitchChooser] = useState(false);
+  const [showBackup, setShowBackup] = useState(false);
+  const [importDraft, setImportDraft] = useState<ImportDraft | null>(null);
+  const [backupError, setBackupError] = useState("");
   const [currentNoteDraft, setCurrentNoteDraft] = useState("");
   const [returnChoice, setReturnChoice] = useState("none");
   const [newTitle, setNewTitle] = useState("");
@@ -475,6 +484,7 @@ export default function Home() {
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   const quickTaskInput = useRef<HTMLInputElement>(null);
   const reminderDateInput = useRef<HTMLInputElement>(null);
+  const backupFileInput = useRef<HTMLInputElement>(null);
   const toastTimer = useRef<number | null>(null);
   const shownReminders = useRef(new Set<string>());
 
@@ -510,11 +520,17 @@ export default function Home() {
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       const target = event.target as HTMLElement;
       const isTyping = target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
-      if (event.key === "/" && !isTyping && !switchTarget && !editTarget && !showLanding && !showTaskManager && !showSwitchChooser && !reminderTaskId) {
+      if (event.key === "/" && !isTyping && !switchTarget && !editTarget && !showLanding && !showTaskManager && !showSwitchChooser && !showBackup && !reminderTaskId) {
         event.preventDefault();
         quickTaskInput.current?.focus();
       }
       if (event.key === "Escape") {
+        if (showBackup) {
+          setShowBackup(false);
+          setImportDraft(null);
+          setBackupError("");
+          return;
+        }
         if (reminderTaskId) {
           setReminderTaskId(null);
           return;
@@ -541,7 +557,7 @@ export default function Home() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [switchTarget, editTarget, showLanding, showTaskManager, showSwitchChooser, reminderTaskId]);
+  }, [switchTarget, editTarget, showLanding, showTaskManager, showSwitchChooser, showBackup, reminderTaskId]);
 
   const activeTask = useMemo(
     () => workspace?.tasks.find((task) => task.status === "active") ?? null,
@@ -584,7 +600,8 @@ export default function Home() {
       editTarget ||
       showLanding ||
       showTaskManager ||
-      showSwitchChooser
+      showSwitchChooser ||
+      showBackup
     ) return;
 
     const dueTask = workspace.tasks.find((task) => {
@@ -603,6 +620,7 @@ export default function Home() {
     showLanding,
     showTaskManager,
     showSwitchChooser,
+    showBackup,
   ]);
 
   function showToast(message: string, deleted: DeletedTask | null = null) {
@@ -1024,6 +1042,43 @@ export default function Home() {
     showToast("备份文件已下载");
   }
 
+  function closeBackup() {
+    setShowBackup(false);
+    setImportDraft(null);
+    setBackupError("");
+  }
+
+  async function readBackupFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setBackupError("");
+
+    try {
+      const raw = JSON.parse(await file.text()) as Record<string, unknown>;
+      if (raw.schemaVersion !== SCHEMA_VERSION || !Array.isArray(raw.tasks)) {
+        throw new Error("invalid backup");
+      }
+      setImportDraft({
+        workspace: normalizeWorkspace(raw),
+        fileName: file.name,
+      });
+    } catch {
+      setImportDraft(null);
+      setBackupError("无法读取这个文件，请选择由续线导出的 JSON 备份。");
+    }
+  }
+
+  function confirmImport() {
+    if (!importDraft) return;
+    setWorkspace(importDraft.workspace);
+    setNow(Date.now());
+    shownReminders.current.clear();
+    const taskCount = importDraft.workspace.tasks.length;
+    closeBackup();
+    showToast(`已导入 ${taskCount} 个任务`);
+  }
+
   function finishLanding(event: FormEvent) {
     event.preventDefault();
     updateWorkspace((current) => ({ ...current, lastLandingAt: Date.now() }));
@@ -1064,7 +1119,7 @@ export default function Home() {
           <button className="task-manager-button" type="button" onClick={() => setShowTaskManager(true)}>
             全部任务 <span>{openTaskCount}</span>
           </button>
-          <button className="text-button" type="button" onClick={exportBackup}>导出备份</button>
+          <button className="text-button" type="button" onClick={() => setShowBackup(true)}>备份</button>
           <button className="text-button" type="button" onClick={() => setShowLanding(true)}>结束今天</button>
         </div>
       </header>
@@ -1268,6 +1323,62 @@ export default function Home() {
           </div>
         </aside>
       </div>
+
+      {showBackup && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && closeBackup()}>
+          <section className="modal-card backup-modal" role="dialog" aria-modal="true" aria-labelledby="backup-title">
+            <button className="modal-close" type="button" onClick={closeBackup} aria-label="关闭">×</button>
+            <h2 id="backup-title">{importDraft ? "确认导入" : "备份数据"}</h2>
+            <p className="modal-lede">
+              {importDraft
+                ? "确认后，当前浏览器中的任务会被备份内容替换。"
+                : "下载当前任务记录，或从续线备份中恢复。"}
+            </p>
+
+            {importDraft ? (
+              <>
+                <div className="import-summary">
+                  <span>将导入</span>
+                  <strong>{importDraft.workspace.tasks.length} 个任务</strong>
+                  <small>{importDraft.fileName}</small>
+                </div>
+                <p className="import-warning">当前任务将被覆盖，且无法撤销。需要保留时，请先导出备份。</p>
+                <div className="modal-actions">
+                  <button type="button" onClick={() => setImportDraft(null)}>返回</button>
+                  <button className="confirm-button" type="button" onClick={confirmImport}>覆盖并导入</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="backup-options">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      exportBackup();
+                      closeBackup();
+                    }}
+                  >
+                    <strong>导出备份</strong>
+                    <span>下载全部任务记录</span>
+                  </button>
+                  <button type="button" onClick={() => backupFileInput.current?.click()}>
+                    <strong>导入备份</strong>
+                    <span>选择 JSON 文件并覆盖当前数据</span>
+                  </button>
+                </div>
+                <input
+                  ref={backupFileInput}
+                  className="backup-file-input"
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={readBackupFile}
+                />
+                {backupError && <p className="backup-error" role="alert">{backupError}</p>}
+              </>
+            )}
+          </section>
+        </div>
+      )}
 
       {reminderTask && (
         <div className="modal-backdrop is-elevated" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setReminderTaskId(null)}>
