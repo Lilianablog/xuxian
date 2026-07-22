@@ -1296,12 +1296,12 @@ a:focus-visible {
   color: transparent;
 }
 
-.modal-card .datetime-picker-field:focus-within::after {
+.modal-card .datetime-picker-field.is-time:focus-within::after {
   opacity: 0;
 }
 
-.modal-card .datetime-picker-field:focus-within > input,
-.modal-card .datetime-picker-field:focus-within > input::-webkit-datetime-edit {
+.modal-card .datetime-picker-field.is-time:focus-within > input,
+.modal-card .datetime-picker-field.is-time:focus-within > input::-webkit-datetime-edit {
   color: var(--text);
 }
 

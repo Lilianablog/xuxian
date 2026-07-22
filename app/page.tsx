@@ -1708,7 +1708,7 @@ export default function Home() {
                     </div>
                     <div className="datetime-picker" aria-label="自定义提醒时间">
                       <label
-                        className="datetime-picker-field"
+                        className="datetime-picker-field is-date"
                         data-display={editingDraft.returnAt ? dateInputValue(editingDraft.returnAt).replaceAll("-", "/") : "选择日期"}
                         onClick={openDateTimePicker}
                       >
@@ -1731,7 +1731,7 @@ export default function Home() {
                         />
                       </label>
                       <label
-                        className="datetime-picker-field"
+                        className="datetime-picker-field is-time"
                         data-display={timeInputValue(editingDraft.returnAt) || "选择时间"}
                         onClick={openDateTimePicker}
                       >
