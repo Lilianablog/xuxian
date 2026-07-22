@@ -1239,10 +1239,10 @@ a:focus-visible {
 }
 
 .modal-card .datetime-picker-field {
-  gap: 3px;
   margin: 0;
   min-width: 0;
-  padding: 8px 12px;
+  padding: 0;
+  position: relative;
 }
 
 .modal-card .datetime-picker-field + .datetime-picker-field {
@@ -1252,6 +1252,11 @@ a:focus-visible {
 .modal-card .datetime-picker-field > span {
   color: var(--faint);
   font-size: 10px;
+  left: 12px;
+  pointer-events: none;
+  position: absolute;
+  top: 8px;
+  z-index: 1;
 }
 
 .modal-card .datetime-picker-field > input {
@@ -1260,11 +1265,12 @@ a:focus-visible {
   border-radius: 0;
   box-shadow: none;
   color: var(--text);
+  cursor: pointer;
   font-size: 13px;
-  min-height: 24px;
+  min-height: 58px;
   min-width: 0;
   outline: 0;
-  padding: 0;
+  padding: 22px 12px 7px;
   width: 100%;
 }
 
@@ -1273,8 +1279,33 @@ a:focus-visible {
   box-shadow: none;
 }
 
+.modal-card .datetime-picker-field.is-empty::after {
+  color: var(--muted);
+  content: attr(data-placeholder);
+  font-size: 13px;
+  left: 12px;
+  pointer-events: none;
+  position: absolute;
+  top: 31px;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.modal-card .datetime-picker-field.is-empty > input,
+.modal-card .datetime-picker-field.is-empty > input::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.modal-card .datetime-picker-field.is-empty:focus-within::after {
+  opacity: 0;
+}
+
+.modal-card .datetime-picker-field.is-empty:focus-within > input,
+.modal-card .datetime-picker-field.is-empty:focus-within > input::-webkit-datetime-edit {
+  color: var(--text);
+}
+
 .modal-card .datetime-picker-field > input:disabled {
-  color: var(--faint);
   cursor: not-allowed;
   opacity: 0.55;
 }

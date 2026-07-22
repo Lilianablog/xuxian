@@ -1691,7 +1691,10 @@ export default function Home() {
                       )}
                     </div>
                     <div className="datetime-picker" aria-label="自定义提醒时间">
-                      <label className="datetime-picker-field">
+                      <label
+                        className={`datetime-picker-field${editingDraft.returnAt ? "" : " is-empty"}`}
+                        data-placeholder="选择日期"
+                      >
                         <span>日期</span>
                         <input
                           type="date"
@@ -1707,7 +1710,10 @@ export default function Home() {
                           )}
                         />
                       </label>
-                      <label className="datetime-picker-field">
+                      <label
+                        className={`datetime-picker-field${editingDraft.returnAt ? "" : " is-empty"}`}
+                        data-placeholder="选择时间"
+                      >
                         <span>时间</span>
                         <input
                           type="time"
@@ -1725,11 +1731,11 @@ export default function Home() {
                     <small className="reminder-help">
                       {editingDraft.returnAt !== editingTask.returnAt
                         ? editingDraft.returnAt
-                          ? `保存后将在 ${reminderTimeText(editingDraft.returnAt)} 弹窗`
+                          ? `保存后将在 ${reminderTimeText(editingDraft.returnAt)} 弹窗提醒`
                           : "保存后将关闭提醒。"
                         : editingDraft.returnAt
                           ? `将在 ${reminderTimeText(editingDraft.returnAt)} 弹窗`
-                          : "可选一个快捷时间，也可以指定准确时间。"}
+                          : "可以从上方按钮快速选择，也可以指定日期和时间。"}
                     </small>
                   </div>
                 </details>
