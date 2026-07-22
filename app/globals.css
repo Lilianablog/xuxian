@@ -312,6 +312,14 @@ a:focus-visible {
   justify-content: space-between;
 }
 
+.current-statuses {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
 .section-label {
   align-items: center;
   color: var(--muted);
@@ -1786,16 +1794,10 @@ a:focus-visible {
   margin: 0;
 }
 
-.workday-disable-button {
+.modal-actions .workday-disable-button {
   color: #8f625a;
   margin-right: auto;
-}
-
-.app-footer {
-  display: flex;
-  justify-content: flex-end;
-  min-height: 30px;
-  padding: 7px 2px 0;
+  padding-left: 0;
 }
 
 .workday-countdown {
@@ -1808,6 +1810,7 @@ a:focus-visible {
   gap: 7px;
   letter-spacing: 0.01em;
   padding: 6px 8px;
+  white-space: nowrap;
 }
 
 .workday-countdown:hover {

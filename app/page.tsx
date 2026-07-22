@@ -1228,13 +1228,25 @@ export default function Home() {
 
       <div className="workspace-grid">
         <section className="current-card" aria-labelledby="current-title">
+          <div className="current-header">
+            <p className="section-label" id="current-title"><i aria-hidden="true" />现在</p>
+            <div className="current-statuses">
+              {focusRemaining > 0 && <span className="focus-badge">还剩 {formatDuration(focusRemaining)}</span>}
+              {workspace && (
+                <button
+                  className="workday-countdown"
+                  type="button"
+                  onClick={openWorkdayEnd}
+                  title="点击修改下班时间"
+                >
+                  <i aria-hidden="true" />
+                  {workdayCountdownText(workspace.workdayEnd, now)}
+                </button>
+              )}
+            </div>
+          </div>
           {activeTask ? (
             <>
-              <div className="current-header">
-                <p className="section-label" id="current-title"><i aria-hidden="true" />现在</p>
-                {focusRemaining > 0 && <span className="focus-badge">还剩 {formatDuration(focusRemaining)}</span>}
-              </div>
-
               <div className="current-main">
                 <div className="next-step task-unit">
                   <div className="current-task-tools" aria-label="编辑当前任务">
@@ -1261,7 +1273,6 @@ export default function Home() {
             </>
           ) : (
             <div className="empty-current">
-              <p className="section-label"><i aria-hidden="true" />现在</p>
               <h1>现在没有任务</h1>
               <p>从右侧选一个，或者开始一件新事。</p>
               <button className="primary-action" type="button" onClick={() => beginSwitch({ mode: "new" })}>开始一件事</button>
@@ -1880,20 +1891,6 @@ export default function Home() {
             </form>
           </section>
         </div>
-      )}
-
-      {workspace && (
-        <footer className="app-footer">
-          <button
-            className="workday-countdown"
-            type="button"
-            onClick={openWorkdayEnd}
-            title="点击修改下班时间"
-          >
-            <i aria-hidden="true" />
-            {workdayCountdownText(workspace.workdayEnd, now)}
-          </button>
-        </footer>
       )}
 
       <div className={`toast ${toast ? "show" : ""}`} role="status" aria-live="polite">
