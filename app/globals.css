@@ -1247,7 +1247,8 @@ a:focus-visible {
   border-color: #8fa99b;
 }
 
-.datetime-picker-button:focus-visible {
+.datetime-picker:hover .datetime-picker-button,
+.datetime-picker:focus-within .datetime-picker-button {
   border-color: #8fa99b;
   box-shadow: 0 0 0 3px rgba(49, 93, 73, 0.06);
   outline: 0;
@@ -1265,14 +1266,26 @@ a:focus-visible {
 
 .modal-card .datetime-picker-native {
   border: 0;
-  height: 1px;
+  cursor: pointer;
+  font-size: 16px;
+  height: 100%;
+  inset: 0;
   opacity: 0;
   padding: 0;
-  pointer-events: none;
+  pointer-events: auto;
   position: absolute;
-  right: 12px;
-  top: 50%;
-  width: 1px;
+  width: 100%;
+  z-index: 2;
+}
+
+.datetime-picker-native::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  height: 100%;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
 }
 
 .reminder-help {

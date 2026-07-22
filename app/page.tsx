@@ -482,7 +482,6 @@ export default function Home() {
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   const quickTaskInput = useRef<HTMLInputElement>(null);
-  const reminderDateInput = useRef<HTMLInputElement>(null);
   const backupFileInput = useRef<HTMLInputElement>(null);
   const toastTimer = useRef<number | null>(null);
   const shownReminders = useRef(new Set<string>());
@@ -1672,15 +1671,9 @@ export default function Home() {
                       )}
                     </div>
                     <div className="datetime-picker">
-                      <button
+                      <div
                         className="datetime-picker-button"
-                        type="button"
-                        onClick={() => {
-                          const input = reminderDateInput.current;
-                          if (!input) return;
-                          if (typeof input.showPicker === "function") input.showPicker();
-                          else input.focus();
-                        }}
+                        aria-hidden="true"
                       >
                         <span>
                           {editingDraft.returnAt
@@ -1697,9 +1690,8 @@ export default function Home() {
                           <rect x="3.5" y="5.5" width="17" height="15" rx="2" />
                           <path d="M7.5 3.5v4M16.5 3.5v4M3.5 9.5h17" />
                         </svg>
-                      </button>
+                      </div>
                       <input
-                        ref={reminderDateInput}
                         className="datetime-picker-native"
                         type="datetime-local"
                         aria-label="自定义提醒时间"

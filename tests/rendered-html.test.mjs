@@ -90,6 +90,7 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /提醒时间到了/);
   assert.match(page, /type="datetime-local"/);
   assert.match(page, /shownReminders/);
+  assert.doesNotMatch(page, /showPicker/);
   assert.match(page, /function exportBackup/);
   assert.match(page, /续线备份-/);
   assert.match(page, /导出备份/);
@@ -118,6 +119,7 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /calc\(100dvh - 142px\)/);
   assert.match(css, /\.rich-editor-toolbar/);
+  assert.match(css, /\.datetime-picker-native::\-webkit-calendar-picker-indicator/);
   assert.match(css, /list-style-type:\s*disc/);
   assert.match(css, /list-style-type:\s*decimal/);
   assert.doesNotMatch(css, /linear-gradient|radial-gradient/);
