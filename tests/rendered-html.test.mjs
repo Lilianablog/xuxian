@@ -111,6 +111,10 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /switch-route-new/);
   assert.doesNotMatch(page, /给当前任务留信息（可选）/);
   assert.match(page, /accept="\.json,application\/json"/);
+  assert.match(page, /function workdayCountdownText/);
+  assert.match(page, /workdayEnd: asTime\(raw\.workdayEnd\)/);
+  assert.match(page, /每天 8:00 后开始显示倒计时/);
+  assert.match(page, /className="workday-countdown"/);
   assert.match(page, /放到稍后/);
   assert.match(page, /editDrafts/);
   assert.match(page, /暂时关闭不会丢失本次修改/);
@@ -128,6 +132,7 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(css, /calc\(100dvh - 142px\)/);
   assert.match(css, /\.rich-editor-toolbar/);
   assert.match(css, /\.datetime-picker-field/);
+  assert.match(css, /\.workday-countdown/);
   assert.match(css, /list-style-type:\s*disc/);
   assert.match(css, /list-style-type:\s*decimal/);
   assert.doesNotMatch(css, /linear-gradient|radial-gradient/);

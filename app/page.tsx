@@ -29,6 +29,7 @@ type Workspace = {
   tasks: Task[];
   focusEndsAt: number | null;
   lastLandingAt: number | null;
+  workdayEnd: string | null;
 };
 
 type SwitchTarget =
@@ -78,6 +79,13 @@ function asText(value: unknown) {
 
 function asNumber(value: unknown, fallback: number) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function asTime(value: unknown) {
+  const text = asText(value);
+  if (!/^\d{2}:\d{2}$/.test(text)) return null;
+  const [hours, minutes] = text.split(":").map(Number);
+  return hours < 24 && minutes < 60 ? text : null;
 }
 
 const NOTE_TAGS = new Set(["B", "BR", "DIV", "LI", "OL", "P", "STRONG", "U", "UL"]);
@@ -223,6 +231,7 @@ function createInitialWorkspace(): Workspace {
     schemaVersion: SCHEMA_VERSION,
     focusEndsAt: null,
     lastLandingAt: null,
+    workdayEnd: null,
     tasks: [
       {
         id: "quarterly-report",
@@ -362,6 +371,7 @@ function normalizeWorkspace(value: unknown): Workspace {
     tasks,
     focusEndsAt: typeof raw.focusEndsAt === "number" ? raw.focusEndsAt : null,
     lastLandingAt: typeof raw.lastLandingAt === "number" ? raw.lastLandingAt : null,
+    workdayEnd: asTime(raw.workdayEnd),
   };
 }
 
@@ -471,6 +481,23 @@ function reminderTimeText(timestamp: number) {
   });
 }
 
+function workdayCountdownText(workdayEnd: string | null, now: number) {
+  if (!workdayEnd) return "设置下班时间";
+  const [hours, minutes] = workdayEnd.split(":").map(Number);
+  const current = new Date(now);
+  const currentMinutes = current.getHours() * 60 + current.getMinutes();
+  const endMinutes = hours * 60 + minutes;
+  if (currentMinutes < 8 * 60 || currentMinutes >= endMinutes) return `下班 ${workdayEnd}`;
+
+  const end = new Date(now);
+  end.setHours(hours, minutes, 0, 0);
+  const remainingSeconds = Math.max(0, Math.floor((end.getTime() - now) / 1000));
+  const remainingHours = Math.floor(remainingSeconds / 3600);
+  const remainingMinutes = Math.floor((remainingSeconds % 3600) / 60);
+  const seconds = remainingSeconds % 60;
+  return `离下班 ${String(remainingHours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
 function sessionSeconds(task: Task, now: number) {
   return task.startedAt ? Math.max(0, Math.floor((now - task.startedAt) / 1000)) : 0;
 }
@@ -492,6 +519,8 @@ export default function Home() {
   const [showTaskManager, setShowTaskManager] = useState(false);
   const [showSwitchChooser, setShowSwitchChooser] = useState(false);
   const [showBackup, setShowBackup] = useState(false);
+  const [showWorkdayEnd, setShowWorkdayEnd] = useState(false);
+  const [workdayEndDraft, setWorkdayEndDraft] = useState("18:00");
   const [importDraft, setImportDraft] = useState<ImportDraft | null>(null);
   const [backupError, setBackupError] = useState("");
   const [currentNoteDraft, setCurrentNoteDraft] = useState("");
@@ -539,11 +568,15 @@ export default function Home() {
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       const target = event.target as HTMLElement;
       const isTyping = target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
-      if (event.key === "/" && !isTyping && !switchTarget && !editTarget && !showLanding && !showTaskManager && !showSwitchChooser && !showBackup && !reminderTaskId) {
+      if (event.key === "/" && !isTyping && !switchTarget && !editTarget && !showLanding && !showTaskManager && !showSwitchChooser && !showBackup && !showWorkdayEnd && !reminderTaskId) {
         event.preventDefault();
         quickTaskInput.current?.focus();
       }
       if (event.key === "Escape") {
+        if (showWorkdayEnd) {
+          setShowWorkdayEnd(false);
+          return;
+        }
         if (showBackup) {
           setShowBackup(false);
           setImportDraft(null);
@@ -576,7 +609,7 @@ export default function Home() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [switchTarget, editTarget, showLanding, showTaskManager, showSwitchChooser, showBackup, reminderTaskId]);
+  }, [switchTarget, editTarget, showLanding, showTaskManager, showSwitchChooser, showBackup, showWorkdayEnd, reminderTaskId]);
 
   const activeTask = useMemo(
     () => workspace?.tasks.find((task) => task.status === "active") ?? null,
@@ -620,7 +653,8 @@ export default function Home() {
       showLanding ||
       showTaskManager ||
       showSwitchChooser ||
-      showBackup
+      showBackup ||
+      showWorkdayEnd
     ) return;
 
     const dueTask = workspace.tasks.find((task) => {
@@ -640,6 +674,7 @@ export default function Home() {
     showTaskManager,
     showSwitchChooser,
     showBackup,
+    showWorkdayEnd,
   ]);
 
   function showToast(message: string, deleted: DeletedTask | null = null) {
@@ -1110,6 +1145,20 @@ export default function Home() {
     const taskCount = importDraft.workspace.tasks.length;
     closeBackup();
     showToast(`已导入 ${taskCount} 个任务`);
+  }
+
+  function openWorkdayEnd() {
+    setWorkdayEndDraft(workspace?.workdayEnd ?? "18:00");
+    setShowWorkdayEnd(true);
+  }
+
+  function saveWorkdayEnd(event: FormEvent) {
+    event.preventDefault();
+    const workdayEnd = asTime(workdayEndDraft);
+    if (!workdayEnd) return;
+    updateWorkspace((current) => ({ ...current, workdayEnd }));
+    setShowWorkdayEnd(false);
+    showToast("下班时间已设置");
   }
 
   function finishLanding(event: FormEvent) {
@@ -1778,6 +1827,33 @@ export default function Home() {
         </div>
       )}
 
+      {showWorkdayEnd && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setShowWorkdayEnd(false)}>
+          <section className="modal-card workday-end-modal" role="dialog" aria-modal="true" aria-labelledby="workday-end-title">
+            <button className="modal-close" type="button" onClick={() => setShowWorkdayEnd(false)} aria-label="关闭">×</button>
+            <h2 id="workday-end-title">设置下班时间</h2>
+            <p className="modal-lede">设置后每天沿用这个时间。</p>
+            <form onSubmit={saveWorkdayEnd}>
+              <label className="workday-end-field">
+                <span>每天几点下班</span>
+                <input
+                  autoFocus
+                  type="time"
+                  value={workdayEndDraft}
+                  onChange={(event) => setWorkdayEndDraft(event.target.value)}
+                  required
+                />
+              </label>
+              <p className="workday-end-help">每天 8:00 后开始显示倒计时。</p>
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowWorkdayEnd(false)}>取消</button>
+                <button className="confirm-button" type="submit">保存</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+
       {showLanding && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setShowLanding(false)}>
           <section className="modal-card landing-modal" role="dialog" aria-modal="true" aria-labelledby="landing-title">
@@ -1792,6 +1868,18 @@ export default function Home() {
             </form>
           </section>
         </div>
+      )}
+
+      {workspace && (
+        <button
+          className="workday-countdown"
+          type="button"
+          onClick={openWorkdayEnd}
+          title="点击修改下班时间"
+        >
+          <i aria-hidden="true" />
+          {workdayCountdownText(workspace.workdayEnd, now)}
+        </button>
       )}
 
       <div className={`toast ${toast ? "show" : ""}`} role="status" aria-live="polite">
