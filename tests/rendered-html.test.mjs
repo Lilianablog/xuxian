@@ -91,12 +91,12 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /type="date"/);
   assert.match(page, /type="time"/);
   assert.match(page, /combineLocalDateAndTime/);
-  assert.match(page, /data-placeholder="选择日期"/);
+  assert.match(page, /data-display=/);
+  assert.match(page, /openDateTimePicker/);
   assert.match(page, /可以从上方按钮快速选择/);
   assert.match(page, /弹窗提醒/);
   assert.doesNotMatch(page, /可选一个快捷时间/);
   assert.match(page, /shownReminders/);
-  assert.doesNotMatch(page, /showPicker/);
   assert.match(page, /function exportBackup/);
   assert.match(page, /续线备份-/);
   assert.match(page, /导出备份/);

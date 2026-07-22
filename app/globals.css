@@ -1279,9 +1279,9 @@ a:focus-visible {
   box-shadow: none;
 }
 
-.modal-card .datetime-picker-field.is-empty::after {
+.modal-card .datetime-picker-field::after {
   color: var(--muted);
-  content: attr(data-placeholder);
+  content: attr(data-display);
   font-size: 13px;
   left: 12px;
   pointer-events: none;
@@ -1291,17 +1291,17 @@ a:focus-visible {
   z-index: 1;
 }
 
-.modal-card .datetime-picker-field.is-empty > input,
-.modal-card .datetime-picker-field.is-empty > input::-webkit-datetime-edit {
+.modal-card .datetime-picker-field > input,
+.modal-card .datetime-picker-field > input::-webkit-datetime-edit {
   color: transparent;
 }
 
-.modal-card .datetime-picker-field.is-empty:focus-within::after {
+.modal-card .datetime-picker-field:focus-within::after {
   opacity: 0;
 }
 
-.modal-card .datetime-picker-field.is-empty:focus-within > input,
-.modal-card .datetime-picker-field.is-empty:focus-within > input::-webkit-datetime-edit {
+.modal-card .datetime-picker-field:focus-within > input,
+.modal-card .datetime-picker-field:focus-within > input::-webkit-datetime-edit {
   color: var(--text);
 }
 

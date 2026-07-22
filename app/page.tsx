@@ -7,6 +7,7 @@ import type {
   DragEvent,
   FormEvent,
   KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
 } from "react";
 
 type TaskStatus = "active" | "later" | "done";
@@ -872,6 +873,21 @@ export default function Home() {
     }));
   }
 
+  function openDateTimePicker(event: ReactMouseEvent<HTMLLabelElement>) {
+    const input = event.currentTarget.querySelector("input");
+    if (!input || input.disabled) return;
+    if (typeof input.showPicker === "function") {
+      input.focus({ preventScroll: true });
+      try {
+        input.showPicker();
+      } catch {
+        // Direct input clicks still open native pickers where showPicker is unavailable.
+      }
+    } else {
+      input.focus({ preventScroll: true });
+    }
+  }
+
   function saveTaskEdit(event: FormEvent) {
     event.preventDefault();
     if (!editTarget || !editingDraft?.title.trim()) return;
@@ -1692,27 +1708,32 @@ export default function Home() {
                     </div>
                     <div className="datetime-picker" aria-label="自定义提醒时间">
                       <label
-                        className={`datetime-picker-field${editingDraft.returnAt ? "" : " is-empty"}`}
-                        data-placeholder="选择日期"
+                        className="datetime-picker-field"
+                        data-display={editingDraft.returnAt ? dateInputValue(editingDraft.returnAt).replaceAll("-", "/") : "选择日期"}
+                        onClick={openDateTimePicker}
                       >
                         <span>日期</span>
                         <input
                           type="date"
                           min={dateInputValue(now)}
                           value={dateInputValue(editingDraft.returnAt)}
-                          onChange={(event) => updateEditReminder(
-                            event.target.value
-                              ? combineLocalDateAndTime(
-                                  event.target.value,
-                                  timeInputValue(editingDraft.returnAt) || defaultReminderTime(event.target.value, now),
-                                )
-                              : null,
-                          )}
+                          onChange={(event) => {
+                            updateEditReminder(
+                              event.target.value
+                                ? combineLocalDateAndTime(
+                                    event.target.value,
+                                    timeInputValue(editingDraft.returnAt) || defaultReminderTime(event.target.value, now),
+                                  )
+                                : null,
+                            );
+                            event.currentTarget.blur();
+                          }}
                         />
                       </label>
                       <label
-                        className={`datetime-picker-field${editingDraft.returnAt ? "" : " is-empty"}`}
-                        data-placeholder="选择时间"
+                        className="datetime-picker-field"
+                        data-display={timeInputValue(editingDraft.returnAt) || "选择时间"}
+                        onClick={openDateTimePicker}
                       >
                         <span>时间</span>
                         <input
@@ -1720,11 +1741,14 @@ export default function Home() {
                           disabled={!editingDraft.returnAt}
                           min={dateInputValue(editingDraft.returnAt) === dateInputValue(now) ? timeInputValue(now) : undefined}
                           value={timeInputValue(editingDraft.returnAt)}
-                          onChange={(event) => updateEditReminder(
-                            event.target.value && editingDraft.returnAt
-                              ? combineLocalDateAndTime(dateInputValue(editingDraft.returnAt), event.target.value)
-                              : null,
-                          )}
+                          onChange={(event) => {
+                            updateEditReminder(
+                              event.target.value && editingDraft.returnAt
+                                ? combineLocalDateAndTime(dateInputValue(editingDraft.returnAt), event.target.value)
+                                : null,
+                            );
+                            event.currentTarget.blur();
+                          }}
                         />
                       </label>
                     </div>
