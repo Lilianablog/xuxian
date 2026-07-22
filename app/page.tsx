@@ -441,6 +441,26 @@ function datetimeLocalValue(timestamp: number | null) {
   return new Date(timestamp - offset).toISOString().slice(0, 16);
 }
 
+function dateInputValue(timestamp: number | null) {
+  return datetimeLocalValue(timestamp).slice(0, 10);
+}
+
+function timeInputValue(timestamp: number | null) {
+  return datetimeLocalValue(timestamp).slice(11, 16);
+}
+
+function combineLocalDateAndTime(dateValue: string, timeValue: string) {
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const [hours, minutes] = timeValue.split(":").map(Number);
+  return new Date(year, month - 1, day, hours, minutes, 0, 0).getTime();
+}
+
+function defaultReminderTime(dateValue: string, now: number) {
+  if (dateValue !== dateInputValue(now)) return "10:30";
+  const oneHourLater = now + 60 * 60 * 1000;
+  return dateInputValue(oneHourLater) === dateValue ? timeInputValue(oneHourLater) : "23:59";
+}
+
 function reminderTimeText(timestamp: number) {
   return new Date(timestamp).toLocaleString("zh-CN", {
     month: "numeric",
@@ -1670,35 +1690,37 @@ export default function Home() {
                         <button className="clear-reminder-button" type="button" onClick={() => updateEditReminder(null)}>清除</button>
                       )}
                     </div>
-                    <div className="datetime-picker">
-                      <div
-                        className="datetime-picker-button"
-                        aria-hidden="true"
-                      >
-                        <span>
-                          {editingDraft.returnAt
-                            ? new Date(editingDraft.returnAt).toLocaleString("zh-CN", {
-                                year: "numeric",
-                                month: "numeric",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "选择具体日期和时间"}
-                        </span>
-                        <svg className="datetime-picker-icon" viewBox="0 0 24 24" aria-hidden="true">
-                          <rect x="3.5" y="5.5" width="17" height="15" rx="2" />
-                          <path d="M7.5 3.5v4M16.5 3.5v4M3.5 9.5h17" />
-                        </svg>
-                      </div>
-                      <input
-                        className="datetime-picker-native"
-                        type="datetime-local"
-                        aria-label="自定义提醒时间"
-                        min={datetimeLocalValue(now)}
-                        value={datetimeLocalValue(editingDraft.returnAt)}
-                        onChange={(event) => updateEditReminder(event.target.value ? new Date(event.target.value).getTime() : null)}
-                      />
+                    <div className="datetime-picker" aria-label="自定义提醒时间">
+                      <label className="datetime-picker-field">
+                        <span>日期</span>
+                        <input
+                          type="date"
+                          min={dateInputValue(now)}
+                          value={dateInputValue(editingDraft.returnAt)}
+                          onChange={(event) => updateEditReminder(
+                            event.target.value
+                              ? combineLocalDateAndTime(
+                                  event.target.value,
+                                  timeInputValue(editingDraft.returnAt) || defaultReminderTime(event.target.value, now),
+                                )
+                              : null,
+                          )}
+                        />
+                      </label>
+                      <label className="datetime-picker-field">
+                        <span>时间</span>
+                        <input
+                          type="time"
+                          disabled={!editingDraft.returnAt}
+                          min={dateInputValue(editingDraft.returnAt) === dateInputValue(now) ? timeInputValue(now) : undefined}
+                          value={timeInputValue(editingDraft.returnAt)}
+                          onChange={(event) => updateEditReminder(
+                            event.target.value && editingDraft.returnAt
+                              ? combineLocalDateAndTime(dateInputValue(editingDraft.returnAt), event.target.value)
+                              : null,
+                          )}
+                        />
+                      </label>
                     </div>
                     <small className="reminder-help">
                       {editingDraft.returnAt !== editingTask.returnAt
