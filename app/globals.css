@@ -1712,7 +1712,72 @@ a:focus-visible {
 }
 
 .modal-card .workday-end-field {
+  border: 1px solid var(--line);
+  border-radius: 9px;
   margin-bottom: 8px;
+  min-height: 58px;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+}
+
+.modal-card .workday-end-field > span {
+  color: var(--faint);
+  font-size: 10px;
+  left: 12px;
+  pointer-events: none;
+  position: absolute;
+  top: 8px;
+  z-index: 1;
+}
+
+.modal-card .workday-end-field > input {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  min-height: 58px;
+  outline: 0;
+  padding: 22px 12px 7px;
+  width: 100%;
+}
+
+.modal-card .workday-end-field > input::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.modal-card .workday-end-field::after {
+  color: var(--text);
+  content: attr(data-display);
+  font-size: 13px;
+  left: 12px;
+  pointer-events: none;
+  position: absolute;
+  top: 35px;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.modal-card .workday-end-field:focus-within {
+  border-color: #8fa99b;
+  box-shadow: 0 0 0 3px rgba(49, 93, 73, 0.06);
+}
+
+.modal-card .workday-end-field:focus-within::after {
+  opacity: 0;
+}
+
+.modal-card .workday-end-field:focus-within > input,
+.modal-card .workday-end-field:focus-within > input::-webkit-datetime-edit {
+  color: var(--text);
+}
+
+.modal-card .workday-end-field:focus-within > input {
+  border: 0;
+  box-shadow: none;
 }
 
 .workday-end-help {
@@ -1721,20 +1786,28 @@ a:focus-visible {
   margin: 0;
 }
 
+.workday-disable-button {
+  color: #8f625a;
+  margin-right: auto;
+}
+
+.app-footer {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 30px;
+  padding: 7px 2px 0;
+}
+
 .workday-countdown {
   align-items: center;
   background: transparent;
   border: 0;
-  bottom: 14px;
   color: #8a918c;
   display: flex;
   font-size: 11px;
   gap: 7px;
-  left: 18px;
   letter-spacing: 0.01em;
   padding: 6px 8px;
-  position: fixed;
-  z-index: 5;
 }
 
 .workday-countdown:hover {
@@ -1839,11 +1912,6 @@ a:focus-visible {
 @media (max-width: 620px) {
   .app-shell {
     padding: 0 12px 24px;
-  }
-
-  .workday-countdown {
-    bottom: 8px;
-    left: 6px;
   }
 
   .topbar {

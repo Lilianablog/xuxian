@@ -1161,6 +1161,12 @@ export default function Home() {
     showToast("下班时间已设置");
   }
 
+  function disableWorkdayEnd() {
+    updateWorkspace((current) => ({ ...current, workdayEnd: null }));
+    setShowWorkdayEnd(false);
+    showToast("下班倒计时已关闭");
+  }
+
   function finishLanding(event: FormEvent) {
     event.preventDefault();
     updateWorkspace((current) => ({ ...current, lastLandingAt: Date.now() }));
@@ -1834,10 +1840,13 @@ export default function Home() {
             <h2 id="workday-end-title">设置下班时间</h2>
             <p className="modal-lede">设置后每天沿用这个时间。</p>
             <form onSubmit={saveWorkdayEnd}>
-              <label className="workday-end-field">
+              <label
+                className="workday-end-field"
+                data-display={workdayEndDraft || "选择时间"}
+                onClick={openDateTimePicker}
+              >
                 <span>每天几点下班</span>
                 <input
-                  autoFocus
                   type="time"
                   value={workdayEndDraft}
                   onChange={(event) => setWorkdayEndDraft(event.target.value)}
@@ -1846,6 +1855,9 @@ export default function Home() {
               </label>
               <p className="workday-end-help">每天 8:00 后开始显示倒计时。</p>
               <div className="modal-actions">
+                {workspace?.workdayEnd && (
+                  <button className="workday-disable-button" type="button" onClick={disableWorkdayEnd}>关闭倒计时</button>
+                )}
                 <button type="button" onClick={() => setShowWorkdayEnd(false)}>取消</button>
                 <button className="confirm-button" type="submit">保存</button>
               </div>
@@ -1871,15 +1883,17 @@ export default function Home() {
       )}
 
       {workspace && (
-        <button
-          className="workday-countdown"
-          type="button"
-          onClick={openWorkdayEnd}
-          title="点击修改下班时间"
-        >
-          <i aria-hidden="true" />
-          {workdayCountdownText(workspace.workdayEnd, now)}
-        </button>
+        <footer className="app-footer">
+          <button
+            className="workday-countdown"
+            type="button"
+            onClick={openWorkdayEnd}
+            title="点击修改下班时间"
+          >
+            <i aria-hidden="true" />
+            {workdayCountdownText(workspace.workdayEnd, now)}
+          </button>
+        </footer>
       )}
 
       <div className={`toast ${toast ? "show" : ""}`} role="status" aria-live="polite">

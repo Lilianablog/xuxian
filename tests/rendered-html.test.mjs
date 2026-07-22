@@ -115,6 +115,9 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /workdayEnd: asTime\(raw\.workdayEnd\)/);
   assert.match(page, /每天 8:00 后开始显示倒计时/);
   assert.match(page, /className="workday-countdown"/);
+  assert.match(page, /className="app-footer"/);
+  assert.match(page, /关闭倒计时/);
+  assert.match(page, /className="workday-end-field"/);
   assert.match(page, /放到稍后/);
   assert.match(page, /editDrafts/);
   assert.match(page, /暂时关闭不会丢失本次修改/);
