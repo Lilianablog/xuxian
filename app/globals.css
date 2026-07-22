@@ -1809,7 +1809,7 @@ a:focus-visible {
   font-size: 11px;
   gap: 7px;
   letter-spacing: 0.01em;
-  padding: 6px 8px;
+  padding: 6px 0 6px 8px;
   white-space: nowrap;
 }
 
