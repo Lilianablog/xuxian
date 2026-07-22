@@ -1240,6 +1240,7 @@ a:focus-visible {
 
 .modal-card .datetime-picker-field {
   margin: 0;
+  min-height: 58px;
   min-width: 0;
   padding: 0;
   position: relative;
@@ -1277,6 +1278,39 @@ a:focus-visible {
 .modal-card .datetime-picker-field > input:focus {
   border: 0;
   box-shadow: none;
+}
+
+.modal-card .datetime-picker-field.is-date > input {
+  height: 100%;
+  inset: 0;
+  opacity: 0;
+  padding: 0;
+  position: absolute;
+  z-index: 2;
+}
+
+.modal-card .datetime-picker-field.is-date > input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  height: 100%;
+  inset: 0;
+  margin: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.datetime-picker-icon {
+  fill: none;
+  height: 19px;
+  pointer-events: none;
+  position: absolute;
+  right: 12px;
+  stroke: var(--text);
+  stroke-linecap: round;
+  stroke-width: 1.8;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 19px;
+  z-index: 1;
 }
 
 .modal-card .datetime-picker-field::after {

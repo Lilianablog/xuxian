@@ -1729,6 +1729,10 @@ export default function Home() {
                             event.currentTarget.blur();
                           }}
                         />
+                        <svg className="datetime-picker-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <rect x="3.5" y="5.5" width="17" height="15" rx="2" />
+                          <path d="M7.5 3.5v4M16.5 3.5v4M3.5 9.5h17" />
+                        </svg>
                       </label>
                       <label
                         className="datetime-picker-field is-time"
