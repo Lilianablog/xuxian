@@ -1320,7 +1320,7 @@ a:focus-visible {
   left: 12px;
   pointer-events: none;
   position: absolute;
-  top: 31px;
+  top: 35px;
   transform: translateY(-50%);
   z-index: 1;
 }
